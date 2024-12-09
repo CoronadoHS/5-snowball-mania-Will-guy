@@ -7,7 +7,7 @@ import time
     Class: AP Computer Science Principles
     Python: 3.11.5
 '''
-
+# switched to comp. 25
 class Player:
     def __init__(self, name):
         self.name = name
