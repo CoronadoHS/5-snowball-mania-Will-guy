@@ -65,7 +65,11 @@ def gameplay (name, players, manual):
             print(f"{thrower.name} is THROWING at {target.name}!")
             
             if(hitResult(thrower, target) == True):
-                print(f"{thrower.name} HIT {target.name}! {target.name} has {target.health}/100 HP left.")
+                print(f"{thrower.name} HIT {target.name}!")
+                if(target.health <= 0):
+                    print(f"{target.name} is OUT!!!")
+                    players.pop(players.index(target))
+
             else:
                 print(f"{thrower.name} missed!")
     else:
