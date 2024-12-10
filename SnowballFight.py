@@ -1,6 +1,7 @@
 import random
 import time
 import colorama
+from colorama import *
 ''' 
     Name: Snowball-Mania
     Author: Will W 
@@ -18,6 +19,7 @@ class Player:
         self.critChance = 0
         self.hitsLanded = 0
         self.shotsFired = 0
+        self.KOs = 0
         if(self.power > 17):
             self.dodgeAbility = float(random.randint(20, 35))/100
             self.critChance = float(random.randint(5, 15))/100
@@ -25,7 +27,7 @@ class Player:
             self.dodgeAbility = float(random.randint(35, 50))/100
             self.critChance = float(random.randint(10, 20))/100
     def __str__(self):
-        return f"STATS = HP : {self.health} - Power : {self.power} - Landed : {self.hitsLanded}"
+        return f"STATS = HP : {self.health} - Power : {self.power} - Landed : {self.hitsLanded} - KOs : {self.KOs}"
 
 players = []
 KOd = []
@@ -46,16 +48,17 @@ def main():
     add = input("Any more opponents? (Press 'ENTER' or type Done if finished)\n>")
     while(add != "" or add.lower() == "done"):
         players.append(Player(add))
-        add = input("Any more opponents? (Press 'ENTER' to finish)\n>")
+        add = input("Any more opponents? (Press 'ENTER' or type Done if finished)\n>")
         time.sleep(.5)
         
-    for p in players:
-        print(p)
-        time.sleep(.1)
+    # for p in players:
+    #     print(p)
+    #     time.sleep(.1)
     p_dict = dict()
     for p in players:
         p_dict.update({p.name.lower() : p})
     gameplay(name, players, input("Would you like to play on auto or manual?\n>"))
+    endgame()
     
 
 def gameplay (name, players, manual):
@@ -67,7 +70,7 @@ def gameplay (name, players, manual):
         while(len(players) > 1):
             while (target == thrower):
                 target = random.choice(players)
-            time.sleep(1.25)
+            time.sleep(3)
             hitResult(thrower, target, players)
             thrower = random.choice(players)
             target = random.choice(players)
@@ -81,11 +84,10 @@ def gameplay (name, players, manual):
                 target = random.choice(players)
             if(thrower.name == name):
                 target = main.p_dict[input("Who would you like to target?\n>").lower()]
-            time.sleep(1.25)
+            time.sleep(2)
             hitResult(thrower, target, players)
             thrower = random.choice(players)
             target = random.choice(players)
-        endgame()
             
 # could be used for a duel mode, but not super applicable right now.
 def coinFlip(thrower, target):
@@ -111,19 +113,22 @@ def hitResult(thrower, target, players):
             thrower.hitsLanded += 1
             thrower.shotsFired += 1
             target.health -= crit*(thrower.power)
-            time.sleep(1.5)
+            time.sleep(3)
             print(f"{thrower.name} HIT {target.name}!")
             displayHealth(players)
             if(checkKO(target)):
                 if(crit > 1):
-                    time.sleep(1)
+                    time.sleep(3)
                     print(f"{thrower.name} KNOCKED OUT {target.name} with a CRITICAL HIT!")
                     KOd.append(target)
                     players.pop(players.index(target))
+                    thrower.KOs += 1
                 else:
-                    time.sleep(1)
+                    time.sleep(3)
                     print(f"{thrower.name} KNOCKED OUT {target.name}!")
+                    KOd.append(target)
                     players.pop(players.index(target))
+                    thrower.KOs += 1
     else:
         time.sleep(2)
         thrower.shotsFired += 1
@@ -142,19 +147,23 @@ def displayHealth(players):
     display = ""
     longest = findLongestName(players)
     for p in players:
-        display += makeSameLength(longest, p.name) + "...HEALTH "
+        display = makeSameLength(longest, p.name) + "...HEALTH "
         x = p.health
+        display += Style.BRIGHT
+        if(x <= 33):
+            display += Style.DIM
+            display += Back.RED
+        elif(x <= 66):
+            display += Back.YELLOW
+        else:
+            display += Back.GREEN
         while(x > 0):
-            if(x <= 33):
-                display += "|"
-            elif(x <= 66):
-                display += "|"
-            else:
-                display += (Style.BRIGHT"|")
-
+            display +=  "|"
             x-=1
-        display += "\n"
-    print(display)
+        print(display)
+        display += (Back.RESET)
+
+        time.sleep(.7)
     time.sleep(2)
     # based on the number that is passed in, return True or False 
     # indicating if this was a hit or a miss
@@ -179,7 +188,11 @@ def endgame():
     place = 2
     for p in KOd:
         time.sleep(3)
-        print(f"#{place} - {p.name} {p} - Accuracy : {int((p.hitsLanded/p.shotsFired)*100)}%")
+        if(p.shotsFired > 0):
+            acc = int((p.hitsLanded/p.shotsFired)*100)
+        else:
+            acc = 0
+        print(f"#{place} - {p.name} {p} - Accuracy : {acc}%")
         place += 1
         
 main()
