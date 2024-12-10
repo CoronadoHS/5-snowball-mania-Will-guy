@@ -54,9 +54,7 @@ def main():
     # for p in players:
     #     print(p)
     #     time.sleep(.1)
-    p_dict = dict()
-    for p in players:
-        p_dict.update({p.name.lower() : p})
+    
     gameplay(name, players, input("Would you like to play on auto or manual?\n>"))
     endgame()
     
@@ -75,6 +73,9 @@ def gameplay (name, players, manual):
             thrower = random.choice(players)
             target = random.choice(players)
     else:
+        p_dict = dict()
+        for p in players:
+            p_dict.update({p.name.lower() : p})
 
         print("***MANUAL MODE SELECTED***")
         thrower = random.choice(players)
@@ -83,7 +84,7 @@ def gameplay (name, players, manual):
             while (target == thrower):
                 target = random.choice(players)
             if(thrower.name == name):
-                target = main.p_dict[input("Who would you like to target?\n>").lower()]
+                target = p_dict[input("Who would you like to target?\n>").lower()]
             time.sleep(2)
             hitResult(thrower, target, players)
             thrower = random.choice(players)
@@ -132,7 +133,7 @@ def hitResult(thrower, target, players):
     else:
         time.sleep(2)
         thrower.shotsFired += 1
-        print(f"{target.name} DODGED {thrower.name}'s snowball!")
+        print(f"{target.name} DODGED {thrower.name}'s snowball!\n")
 
 def checkKO(target):
     '''Checks if health is 0 or less. If it is then it is a KO and returns True.'''
@@ -142,7 +143,7 @@ def checkKO(target):
 
 def displayHealth(players):
     time.sleep(2)
-    print("\n***HEALTHBOARD***\n")
+    print(Style.BRIGHT + "\n***HEALTHBOARD***\n")
     time.sleep(1)
     display = ""
     longest = findLongestName(players)
@@ -151,7 +152,6 @@ def displayHealth(players):
         x = p.health
         display += Style.BRIGHT
         if(x <= 33):
-            display += Style.DIM
             display += Back.RED
         elif(x <= 66):
             display += Back.YELLOW
@@ -160,10 +160,13 @@ def displayHealth(players):
         while(x > 0):
             display +=  "|"
             x-=1
-        print(display)
-        display += (Back.RESET)
-
+        print(display + Style.RESET_ALL)
         time.sleep(.7)
+    print()
+    if(len(KOd) > 0):
+        print(colorama.Style.DIM + "***KNOCKED OUT***\n")
+        for p in KOd:
+            print(Style.DIM + p.name + Style.RESET_ALL)
     time.sleep(2)
     # based on the number that is passed in, return True or False 
     # indicating if this was a hit or a miss
